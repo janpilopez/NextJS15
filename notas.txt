@@ -1,0 +1,46 @@
+#iniciar proyecto
+nvm use v18.20.5 #usar node18
+nvm run default --version
+
+npm install -g pnpm
+pnpm --version
+pnpm i //instalar dependencia
+pnpm dev
+##CAMBIAR ESTILOS DINAMICOS SEGUN ESTADOS O PROPS CON CLSX
+Usando el clsxbiblioteca para cambiar nombres de clase
+
+Puede haber casos en los que usted puede necesitar estilo condicional un elemento basado en el estado o alguna otra condición.
+
+clsx
+es una biblioteca que te permite alternar nombres de clase fácilmente. Recomendamos echar un vista a la documentación
+
+para más detalles, pero aquí está el uso básico:
+
+    Supongamos que quieres crear un InvoiceStatuscomponente que acepta status. El estado puede ser 'pending'o o 'paid'.
+    Si es 'paid', quieres que el color sea verde. Si es 'pending', quieres que el color sea gris.
+
+
+Otras soluciones de estilo
+
+Además de los enfoques que hemos discutido, también puedes diseñar tu aplicación Next.js con:
+
+    Sass que le permite importar .cssy .scssArchivos.
+    Bibliotecas CSS-in-JS como estilo-jsx
+
+, componentes de estilo
+, y emoción
+
+    .
+
+Echa un vistate de la documentación de CSS para más información.
+
+#EN NEXTJS PARA CREAR UNA RUTA O PAGINA SIEMPRE SE DEBE CREAR LA CARPETA Y EL COMPONENTE CON PAGE.TSX (ESTO ES COMO REFERENCIAR AL INDEX.HTML)
+
+#LOS LAYOUTS SE HEREDAN DE MANERA GLOBAL EN LA RUTA PRINCIPAL APP/LAYOUTS
+//AQUI DEBEMOS SOLO CARGAR LA BASE HTML , METADATOS ENTRE OTROS, Y EN CADA COMPONENTE INVOCAR SU LAYOUT O CREARLO, YA QUE NO SE IMPORTA AUTOMATICAMENTE A EXCEPCION DE DE LA RAIZS
+
+#OJOO REACT15 UTILIZA YA RENDERIZADO SERVIDOR Y RENDERIZADO CLIENTE
+
+
+#HOOK PATHNAME -> EN UN HOOK DEL LADO CLIENTE POR TANTO HAY QUE USAR 'use client' para llamarlo
+Un patrón común de interfaz de usuario es mostrar un enlace activo para indicar al usuario en qué página están actualmente. Para ello, necesitas obtener la ruta actual del usuario desde la URL. Next.js proporciona un gancho llamado usePathname()que puede utilizar para comprobar la ruta e implementar este patrón.

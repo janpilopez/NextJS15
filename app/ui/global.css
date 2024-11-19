@@ -16,3 +16,4 @@ input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+/* Este código es útil cuando deseas un control total sobre el diseño de los inputs numéricos, eliminando los estilos predeterminados que varían entre navegadores. */
