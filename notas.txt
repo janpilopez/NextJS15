@@ -44,3 +44,11 @@ Echa un vistate de la documentación de CSS para más información.
 
 #HOOK PATHNAME -> EN UN HOOK DEL LADO CLIENTE POR TANTO HAY QUE USAR 'use client' para llamarlo
 Un patrón común de interfaz de usuario es mostrar un enlace activo para indicar al usuario en qué página están actualmente. Para ello, necesitas obtener la ruta actual del usuario desde la URL. Next.js proporciona un gancho llamado usePathname()que puede utilizar para comprobar la ruta e implementar este patrón.
+
+#CONEXION BASE DE DATOS
+PODEMOS TRABAJAR TANTO COMO CON POSTGRES COMO SUPABASE ENTRE OTROS, AQUI TRABAJAMOS CON SUPASEBASE QUE ES COMO MONGO NOS DA UN CONEXION VIA API
+pnpm i @vercel/postgres
+
+#INSTALAR SUPABASE
+pnpm add @supabase/supabase-js
+npm install @supabase/supabase-js
