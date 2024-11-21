@@ -28,8 +28,12 @@ type InvoiceStatus = {
 //SQL SUPABASE
 export async function fetchRevenue() {
   try {
+    console.log('Fetching revenue data...');
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     // const { data } = await supabase.from('revenue').select()
     const { data } = await supabase.from('revenue').select('*')
+    console.log('Data fetch completed after 3 seconds.');
+
     return data || [];  // Aseguramos que nunca sea null, siempre será un arreglo.
 
 
@@ -38,17 +42,7 @@ export async function fetchRevenue() {
     throw new Error('Failed to fetch revenue data.');
   }
 }
-// const { data } = await supabase
-// .from('customers')
-// .select(`
-//   id, 
-//   name, 
-//   image_url, 
-//   email, 
-//   invoices (id, amount, status, date)
-// `)
-// // .order('date', {ascending: false})
-// .limit(5)
+
 //##supabase
 export async function fetchLatestInvoices() {
   try {

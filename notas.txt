@@ -52,3 +52,74 @@ pnpm i @vercel/postgres
 #INSTALAR SUPABASE
 pnpm add @supabase/supabase-js
 npm install @supabase/supabase-js
+
+
+##RENDER DINAMICO Y RENDER ESTATICO
+//CUANDO POR EJEMPLO CONSUMIMOS DOS API Y LA PAGINA DEBE CARGARSE HAY UNA DEMORA LARGA.
+como una lenta captura de datos. El resultado es que ahora toda su página está bloqueada de mostrar UI(INTERFAZ GRAFICA) al visitante mientras se obtienen los datos. 
+Lo que nos lleva a un desafío común que los desarrolladores tienen que resolver:
+Con la representación dinámica, su aplicación es tan rápida como su obtención de datos más lenta.
+
+
+¿Cuál es la diferencia clave entre renderizado estático y dinámico?
+Tienes razón en que tanto el renderizado estático como el dinámico pueden hacer un fetch de datos cuando la página se carga. Sin embargo, lo que realmente distingue a ambos no es solo el fetch, sino cuándo y cómo se obtiene la data.
+
+Renderizado Estático (Static Rendering):
+
+El término "build time" significa el momento en que se compila tu aplicación, lo cual ocurre cuando ejecutas npm run build en Next.js.
+¿Qué pasa en build time?
+En este caso, Next.js obtiene los datos solo una vez, antes de que se despliegue la aplicación en el servidor o en producción. Este proceso de compilación crea las páginas estáticas (archivos HTML) que estarán disponibles para los usuarios.
+Esto es útil si el contenido no cambia frecuentemente. La página ya se genera una sola vez, y luego se sirve directamente a cada usuario sin necesidad de generar los datos nuevamente.
+¿Qué pasa si los datos cambian después de build time?
+Si los datos cambian, la página no se actualiza automáticamente. Para manejar estos casos, puedes usar mecanismos como Incremental Static Regeneration (ISR) en Next.js, que te permite revalidar y regenerar ciertas páginas de manera automática (en el background).
+Ejemplo: Si tienes una página de blog, el contenido del blog se generará en build time. Si alguien visita la página del blog después de que se haya desplegado, obtendrá la misma página generada, sin hacer nuevos fetch de datos. Sin embargo, si agregas un nuevo artículo y regeneras el sitio, Next.js volverá a actualizar esa página durante el próximo despliegue.
+
+Renderizado Dinámico (Dynamic Rendering):
+
+El renderizado dinámico se refiere a generar la página en cada solicitud del usuario. Aquí no hay un build time fijo como en el caso del renderizado estático.
+¿Qué pasa en cada visita?
+En este caso, cuando un usuario solicita la página, Next.js hace una consulta a la base de datos o API en tiempo real, obtiene los datos actualizados y genera la página HTML dinámicamente en el servidor antes de enviarla al usuario.
+Este proceso ocurre cada vez que un usuario visita la página y es útil para contenido que cambia frecuentemente, como un dashboard o una página con estadísticas en tiempo real.
+Relación entre Build Time, Servidor y Next.js
+Build Time (Tiempo de Construcción): Se refiere a cuando Next.js está compilando tu aplicación, antes de que esté en producción. Cuando ejecutas el comando npm run build, Next.js hace la compilación de todo el código, incluye los datos que definiste en getStaticProps (si estás usando renderizado estático) y crea los archivos finales que se despliegan en el servidor o en un entorno de producción. Esto no es el servidor en sí, es solo la fase de construcción.
+
+Servidor en Next.js:
+Sí, Next.js es un framework que incluye capacidades de servidor. De hecho, Next.js puede ser ejecutado como una aplicación en el servidor para manejar peticiones de usuarios. En un entorno de producción, Next.js se ejecuta en un servidor (en Vercel, por ejemplo, o en tu propio servidor) y es capaz de generar tanto páginas estáticas como dinámicas en función de cómo hayas configurado tu aplicación.
+
+Resumen Clave:
+Build Time en el contexto de Next.js se refiere al momento en que compilas tu aplicación para producción, lo que genera páginas estáticas. Este proceso ocurre cuando usas el comando npm run build. En ese momento, Next.js hace fetch solo una vez (para los datos estáticos) y genera HTML estático que se servirá durante la vida útil de la página.
+
+Renderizado Dinámico ocurre en tiempo de ejecución (cuando un usuario solicita la página), y el servidor genera dinámicamente la página con los datos más recientes.
+
+Next.js como servidor: Si bien Next.js puede generar páginas estáticas, también puede funcionar como un servidor en sí mismo, procesando peticiones HTTP y generando páginas dinámicas en cada visita.
+
+
+##STREAMING
+NEXTJS PERMITE MOSTRAR UN COMPONENTE MIENTRAS SE CARHGAN OTROS COMPONENTES LENTOS (QUE HACEN LLAMADAS FETCH, ETC)
+Hay dos maneras en que implementas streaming en Next.js:
+    1 A nivel de página, con la loading.tsxArchivo.
+    2 Para componentes específicos, con <Suspense>.
+SOLO ES NECESARIO CREAR loading.tsx en la ruta correspondiente y se cargará primero el componente mientra lo demas se procesandocomo en dashboard/loading.tsx
+
+#SKELETONS
+SON BASE DE PLANTILLAS EN BLANCA SIN DATOS QUE PERMITEN SER MOSTRADAS MIENTRAS SE CARGA UN RECURSO, EN ESTE caso se usan
+EN FUNCION CON STREAMING, QUE SIGNIFICA: STREAMING RETORNA EL SKELETON MIENTRA SE PROCESA LA PAGINAArregación del error esqueleto de carga con grupos de ruta
+su esqueleto de carga se aplicará A NIVEL JERARQUICO CON LAS DEMAS SUBCARPETAS O MISMO NIVEL, POR TANTO PARA SOLUCIONARLO
+SE USA Grupos de Rutas DONDE CREAMOS UNA SUBCARPETA(overview) EN EL COMPONENTE DONDE SE NECESITA CARGAR EL SKELETON Y LO MOVEMOS SOLAMENTE ALLI 
+#nota asi mismo se debe mover la page.tsx al overview tambien
+
+
+
+#patrón staggered effect:  agrupar las cartas usando un componente de envoltorio, ENVOLVER OTROS COMPONENTES
+
+# Partial Prerendering nuevo concepto, prerending parcial
+Es combinar renderización estática, representación dinámica y streaming en la misma ruta con Partial Prerrendering (PPR).
+#What are the holes in the context of Partial Prerendering?
+Ubicaciones donde el contenido dinámico se cargará asincrónicamente,  donde el contenido dinámico se cargará asincrónicamente en el tiempo de petición.
+el contenido estatico se carga de primer manera y dejara espacio al contenido dinamico como en una pagina de venta de rpoductos, carga la informacion y el carrito y productos recomendados cargaran asincronamente evitando ralentizacion
+HABILITAR PPR EN next.config.js con
+const nextConfig = {
+  experimental: {
+    ppr: 'incremental',
+  },
+};
