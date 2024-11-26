@@ -1,7 +1,8 @@
 import { Revenue } from './definitions';
 
 export const formatCurrency = (amount: number) => {
-  return (amount / 100).toLocaleString('en-US', {
+  return (amount).toLocaleString('en-US', {
+  // return (amount / 100).toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
   });
@@ -16,8 +17,11 @@ export const formatDateToLocal = (
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+    timeZone: 'America/Lima',  // Convertir la fecha a la zona horaria de Ecuador
+
   };
   const formatter = new Intl.DateTimeFormat(locale, options);
+  return dateStr//existe un problema que convierte la hora y le resta un dia
   return formatter.format(date);
 };
 

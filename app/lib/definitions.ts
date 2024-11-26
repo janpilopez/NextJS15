@@ -53,6 +53,7 @@ export type InvoicesTable = {
   date: string;
   amount: number;
   status: 'pending' | 'paid';
+  customers: Customer
 };
 
 export type CustomersTableType = {

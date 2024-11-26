@@ -1,3 +1,5 @@
+'use client';
+
 import { CustomerField } from '@/app/lib/definitions';
 import Link from 'next/link';
 import {
@@ -7,10 +9,18 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
+import { createInvoice, State } from '@/app/lib/action';
+
+import { useActionState } from 'react';
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
+  //agregar validacion lado servisor con useActionState, el use cliente lo definimos para que se 
+  const initialState: State = { message: null, errors: {} };
+  const [state, formAction] = useActionState(createInvoice, initialState);
+
+
   return (
-    <form>
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -23,6 +33,8 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue=""
+              // Usando aria-describedby, puedes asociar un mensaje de error con ese campo para que los usuarios de lectores de pantalla reciban la descripción de forma automática cuando el campo sea inválido
+              aria-describedby="customer-error"
             >
               <option value="" disabled>
                 Select a customer
@@ -34,6 +46,14 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               ))}
             </select>
             <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+          </div>
+          <div id="customer-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.customerId &&
+              state.errors.customerId.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
           </div>
         </div>
 
@@ -53,6 +73,14 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+            </div>
+            <div id="customer-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.amount &&
+                state.errors.amount.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
             </div>
           </div>
         </div>
@@ -95,6 +123,19 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 </label>
               </div>
             </div>
+            <div id="customer-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.status &&
+                state.errors.status.map((error: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
+              {state.message &&
+                  <p className="mt-2 text-sm text-red-500" key={state.message}>
+                    {state.message }
+                  </p>
+              }
+            </div>
           </div>
         </fieldset>
       </div>
@@ -110,3 +151,28 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
     </form>
   );
 }
+
+// 1. ¿Por qué usamos 'use client' aquí?
+// La directiva 'use client' es una característica de Next.js 13 y versiones posteriores, que indica que el componente en el que se encuentra debe ejecutarse en el lado del cliente.
+
+// En Next.js, puedes tener componentes que se ejecutan en el servidor y otros que se ejecutan en el cliente. La directiva 'use client' le dice a Next.js que este componente específico debe renderizarse en el cliente, incluso si está dentro de una estructura de carpeta que normalmente podría ejecutarse en el servidor.
+
+// Esto es útil cuando necesitas interactividad en el cliente, como el manejo de eventos, formularios, o actualización dinámica de la interfaz, lo cual no es posible con solo renderizado del lado del servidor.
+
+// En tu código, estamos trabajando con un formulario interactivo que realiza una acción (como crear una factura), lo que implica interacción con el usuario, y por lo tanto debe ejecutarse en el lado del cliente.
+
+// 2. ¿Qué hace useActionState?
+// El hook useActionState se utiliza para gestionar el estado de una acción que se ejecuta en el servidor, pero que está siendo invocada desde un componente del cliente. En este caso, createInvoice es una acción del servidor, que probablemente inserta o actualiza una factura en la base de datos.
+
+// Cuando usas useActionState(createInvoice, initialState), estás diciendo que el estado de la acción (state) y la función para invocar la acción (formAction) se deben gestionar a través de este hook. Esto te permite:
+
+// state: Almacenar el estado de la acción (por ejemplo, si la factura se creó correctamente, si hubo un error, etc.).
+// formAction: La función que se debe ejecutar cuando se envíe el formulario. Esta función invoca la acción del servidor createInvoice.
+// 3. Flujo de trabajo: ¿Cómo funciona esto?
+// El formulario se envía desde el cliente: El usuario completa el formulario (probablemente con detalles sobre la factura) y lo envía.
+
+// useActionState invoca la acción del servidor: Cuando el formulario se envía, formAction (devuelto por el hook useActionState) se ejecuta, lo que a su vez invoca la acción del servidor createInvoice.
+
+// Estado de la acción: Mientras createInvoice se ejecuta en el servidor, el estado de la acción (indicado por state) puede ser utilizado para manejar lo que sucede en el cliente (por ejemplo, si la factura fue creada correctamente o si hubo un error).
+
+// Manejo de respuestas: En función de cómo se resuelva la acción (si tiene éxito o si falla), puedes actualizar la UI en el cliente, mostrando un mensaje de éxito o error.

@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import {
   CustomerField,
   CustomersTableType,
+  Invoice,
   InvoiceForm,
   InvoicesTable,
   LatestInvoice,
@@ -11,7 +12,6 @@ import {
   Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
-import { log } from 'console';
 
 // Lee las variables de entorno de tu archivo .env.local
 // const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -104,7 +104,7 @@ export async function fetchLatestInvoices() {
 // 5. Devolver Totales
 // return totals; Objetivo: Finalmente, la función then devuelve el objeto totals, que contiene los totales acumulados de las facturas pagadas y pendientes.
 
-
+//SUPABASE
 export async function fetchCardData() {
   try {
     // Realiza las consultas a Supabase en paralelo
@@ -163,56 +163,105 @@ export async function fetchCardData() {
     throw new Error('Failed to fetch card data.');
   }
 }
+
 const ITEMS_PER_PAGE = 6;
+//SUPABASE
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number,
 ) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const page = Math.max(currentPage, 1); // Si currentPage es 0 o negativo, lo establece como 1
+  const offset = (page - 1) * ITEMS_PER_PAGE;
+  // const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+    //TODO: SUPABASE CONSULTAS DINAMICAS
 
-    return invoices.rows;
+    let filterValueExpression;
+    if (isNaN(parseFloat(query)) || query === '') {
+      filterValueExpression = {};
+    }else{
+      let valor = parseFloat(query)
+      filterValueExpression = { 'amount': valor };  // Usamos un objeto con el filtro de amount
+    }
+
+    const date = new Date(query);   
+    let filterValueDate;
+    if (!isNaN(date.getTime())) {
+      //si no ubicamos esto convierte mal la zona horaria
+      filterValueDate = {'date': date.toISOString()};
+    }else{
+      filterValueDate = {};
+    }
+
+    const { data } = await supabase
+      .from('invoices')
+      // .list()
+      .select(`
+        id, amount, date, status, customer_id,
+        customers!inner ( name, image_url, email)
+        `,
+      )
+
+      // #TODO: POR EL MOMENTO NO PODEMOS UNIFICAR LOS OR CON LOS LIKE YA QUE CHOCAN Y DAN ERRORES
+      // .ilike('status', `%${query}%`)
+      // .or(`status.ilike.%${query}%`)  // Aquí haces el OR solo para los campos de invoices
+      
+      // .ilike('customers.name',`%${query}%`)
+      // .ilike('customers.email', `%${query}%`)
+      
+      // .match(filterValueDate)
+      // .match(filterValueExpression)      
+
+      .or(`name.ilike.%${query}%,email.ilike.%${query}%`,
+        {foreignTable: 'customers' })
+
+
+      .order('date', {ascending: false} )
+      .range(offset, offset + ITEMS_PER_PAGE - 1); // Establecer el rango de registros a devolver
+      console.log(data);
+      
+      const newInvoices = (data || []).map((invoice) => {
+        const customer = invoice.customers; // Accede al primer cliente
+        
+        return {
+          ...invoice,
+          // ...invoice.customers
+          //@ts-ignore
+          name: customer?.name || null, // Accede al nombre del cliente
+          //@ts-ignore
+          image_url: customer?.image_url || null, // Accede a la URL de la imagen
+          //@ts-ignore
+          email: customer?.email || null, // Accede al email del cliente
+        };
+      });
+
+    return newInvoices;
+
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch invoices.');
   }
 }
 
+//SUPABASE
 export async function fetchInvoicesPages(query: string) {
   try {
-    const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
+    const { data, count } = await supabase
+    .from('invoices')
+    // .list()
+    .select(`
+      id, amount, date, status, customer_id,
+      customers!inner ( name, image_url, email)
+      `, { count: "exact"}
+    )
+    .or(`name.ilike.%${query}%,email.ilike.%${query}%`,
+      {foreignTable: 'customers' })
+    
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(Number(count) / ITEMS_PER_PAGE);
+    console.log(totalPages);
+    
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
@@ -220,43 +269,43 @@ export async function fetchInvoicesPages(query: string) {
   }
 }
 
+//SUPABASE
 export async function fetchInvoiceById(id: string) {
   try {
-    const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
+    const { data } = await supabase
+    .from('invoices')
+    .select(`
+      id, customer_id, amount,status
+    `)
+    .eq('id', id)
+    
 
-    const invoice = data.rows.map((invoice) => ({
+    const invoice = (data || []) .map((invoice) => ({
       ...invoice,
       // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
+      // amount: invoice.amount / 100,
     }));
 
-    return invoice[0];
+    return invoice[0] ;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch invoice.');
   }
 }
 
+//supabase
 export async function fetchCustomers() {
   try {
-    const data = await sql<CustomerField>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
+    const { data } = await supabase
+    .from('customers')
+    .select(`
+      id, name
+    `)
+    .order('name', {ascending: true})
+    
 
-    const customers = data.rows;
-    return customers;
+    const customers = data;
+    return customers as CustomerField[];
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch all customers.');

@@ -5,6 +5,17 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: 'incremental',
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'www.adslzone.net',
+        port: '',
+        // pathname: '/account123/**',
+      },
+    ],
+  },
+  swcMinify: true,
 };
 
 export default nextConfig;

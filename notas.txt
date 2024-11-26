@@ -127,3 +127,87 @@ PARA INSTALARLO SE HACE ESTO PORQUE TODAVIA SIGUE EXPERIMENTAL
 pnpm i next@canary
 EJECUTAR ESTO SI NOS DA ERROR, CON ESTO INSTALAMOS LA ULTIMA VERSION EXPERIMENTAL DE REACTJ QUE NOS PERMITIRA USAR EL PPR
 RECORDAR QUE ESTO ES AUTOMATICO NO TENEMOS QUE CONFIGURAR NADA EL CODIGO SIGUE IGUAL, ES TIPO UNA OPTIMIZACION
+
+#BUSQUEDAS
+Estos son los ganchos de cliente Next.js que usarás para implementar la funcionalidad de búsqueda:
+    useSearchParams- Permite acceder a los parámetros de la URL actual. Por ejemplo, la búsqueda params para esta URL /dashboard/invoices?page=1&query=pendingse vería así: {page: '1', query: 'pending'}.
+    usePathname- Deja que leas el nombre de la URL actual. Por ejemplo, para la ruta /dashboard/invoices, usePathnamevolvería '/dashboard/invoices'.
+    useRouter- Permite la navegación entre rutas dentro de los componentes del cliente programáticamente. Hay múltiples métodos que puede utilizar. https://nextjs.org/docs/app/api-reference/functions/use-router#userouter
+
+
+
+Cuándo usar el useSearchParams()gancho vs. el searchParams.. .. . . . .
+
+Usted podría haber notado que usó dos maneras diferentes para extraer params de búsqueda. Si usas uno u otro depende de si estás trabajando en el cliente o en el servidor.
+
+    <Search>es un componente de cliente, por lo que utilizó el useSearchParams()gancho para acceder a los params desde el cliente.
+    <Table>es un Server Component que obtiene sus propios datos, por lo que puede pasar el searchParamsprop de la página al componente.
+
+Como regla general, si desea leer los params del cliente, use el useSearchParams()gancho, ya que esto evita tener que volver al servidor.
+
+###Debouncing 
+es una práctica de programación que limita la velocidad a la que una función puede disparar. Por ejemplo sólo quieres consultar la base de datos cuando el usuario ha dejado de escribir
+si hay un evento que cambia cada click esto ejecutara la funcion a cada rato y puede ralentizar todo el servidor, BD por tanto hacemos uso para hacer un retraso o cuando el usuario dejo de escribir como en un evento onChange
+instalarlo
+pnpm i use-debounce
+
+
+#MUTING data -- SERVER ACTIONS
+Las acciones de servidor también están profundamente integradas con el caché Next.js. Cuando un formulario se envía a través de una Acción Server, no sólo se puede utilizar la acción para mutar los datos, sino que también puede revalidar el caché asociado usando APIs como revalidatePathy revalidateTag.
+
+#FORM DATA - EXTRAER DATOS
+https://developer.mozilla.org/en-US/docs/Web/API/FormData/append
+Si usted está trabajando con formularios que tienen muchos campos, es posible que desee considerar el uso de la entries()
+método con JavaScript Object.fromEntries()
+. Por ejemplo:
+const rawFormData = Object.fromEntries(formData.entries())
+
+
+##Validación y coacción de tipo
+Es importante validar que los datos de su formulario se alinean con los tipos esperados en su base de datos. Por ejemplo, si añades un console.logdentro de su acción:
+
+console.log(typeof rawFormData.amount);
+Te darás cuenta de eso. amountes de tipo stringy no number. Esto es porque inputelementos con type="number"en realidad devuelve una cuerda, no un número.
+Para manejar la validación de tipo, tiene algunas opciones. Si bien puede validar manualmente los tipos, el uso de una biblioteca de validación de tipo puede ahorrarle tiempo y esfuerzo. Para su ejemplo, usaremos Zod
+, una biblioteca de validación de TypeScript-first que puede simplificar esta tarea para usted.
+
+## import { revalidatePath } from 'next/cache';
+Next.js tiene un Cliente-side Router Cache que almacena los segmentos de ruta en el navegador del usuario durante un tiempo. Junto con la prefetching, esta caché garantiza que los usuarios puedan navegar
+rápidamente entre rutas mientras reducen el número de solicitudes hechas al servidor.
+La función revalidatePath en Next.js se utiliza para revalidar una ruta específica y forzar que se actualice el contenido en caché de una página estática o generada de forma incremental.
+Esto es útil en situaciones en las que los datos de una página cambian dinámicamente (por ejemplo, cuando agregas una nueva factura) y deseas asegurarte de que la página vuelva a generarse con los datos más recientes.
+
+#SEGMENTOS DE RUTA DINAMICA
+Next.js le permite crear segmentos de rutas dinámicas cuando no conoce el nombre exacto del segmento y desea crear rutas
+basadas en datos. Esto podría ser títulos de entradas de blog, páginas de productos, etc. Puede crear segmentos de ruta
+dinámicos envolviendo el nombre de una carpeta entre corchetes. Por ejemplo, [id], [post]o o [slug].
+example: invoices/[id]/edit/page.tsx
+
+##ACCION DE SERVIDOR
+EXPLCIACION EN -UI/INVOICES/EDIT-FORM.TSX
+
+#ERRORES CON NEXTJS Y NOTFOUND
+Maneje 404 errores con el notFoundfunción
+
+Otra forma en que puede manejar los errores con la gracia es usando el notFoundfunción. Mientras que error.tsxes útil para atracar todos los errores,
+notFound se puede usar cuando tratas de buscar un recurso que no existe.
+MAS SOBRE ERRORES EN INOVICES ERROR Y EDIT/ERROR
+
+##NEXT LINT
+Exsiten funciones de accesibilidad disponibles en Next.js y algunas prácticas comunes para hacer sus aplicaciones más accesibles.
+Next.js incluye el eslint-plugin-jsx-a11y
+plugin en su configuración ESLint para ayudar a captar problemas de accesibilidad temprano. Por ejemplo, 
+este plugin advierte si tiene imágenes sin alttexto, use la aria-*y roleatributos incorrectamente, y más.
+package.json
+"scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "lint": "next lint"
+},
+
+pnpm lint
+Esto le guiará a través de la instalación y configuración de ESLint para su proyecto. 
+
+
+##VALIDACIONES FORMS LADO SERVIDOR / SIDE-SERVER

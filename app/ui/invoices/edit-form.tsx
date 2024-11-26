@@ -10,6 +10,10 @@ import {
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 
+import { State, updateInvoice } from '@/app/lib/action';
+
+import { useActionState } from 'react';
+
 export default function EditInvoiceForm({
   invoice,
   customers,
@@ -17,8 +21,14 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
+
+                          // mismo contexto siemore, || se establece siempre pasar el id, ya que por reactjs no se puede pasar dorectamente explicaicon abajo
+  const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
+  const initialState: State = { message: null, errors: {} };
+  const [state, formAction] = useActionState(updateInvoiceWithId, initialState);
+
   return (
-    <form>
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -121,3 +131,34 @@ export default function EditInvoiceForm({
     </form>
   );
 }
+
+
+// ¿Qué es una Acción del Servidor en Next.js?
+// En Next.js, las acciones del servidor permiten ejecutar lógica en el servidor como parte de la respuesta de una solicitud. Estas se utilizan para realizar operaciones como:
+
+// Actualizar una base de datos.
+// Ejecutar lógica del servidor.
+// Llamadas a APIs externas, etc.
+// Las acciones del servidor se definen como funciones 'use server' y se pueden usar dentro de los formularios para realizar operaciones en el servidor.
+
+// El Problema:
+// Cuando intentas pasar un parámetro como id directamente en la acción del formulario de la siguiente manera:
+
+// tsx
+// Copy code
+// <form action={updateInvoice(id)}>
+// Esto no funcionará, ya que Next.js no puede recibir el valor directamente a través de esta sintaxis. El id no puede ser un argumento directo de la función de la acción del servidor.
+
+// Solución: Usar bind para pasar el id correctamente.
+// En lugar de pasar el id directamente como un argumento en el action del formulario, utilizamos el método bind de JavaScript para crear una versión de la función de la acción del servidor que ya tiene el id preconfigurado.
+
+// ¿Qué hace .bind(null, invoice.id)?
+// updateInvoice: Es la función que realizará la acción en el servidor (probablemente actualizando la factura en la base de datos).
+// .bind(null, invoice.id): Esto es un truco de JavaScript. Lo que hace es crear una nueva versión de updateInvoice, pero con el primer argumento (en este caso, el id de la factura) ya predefinido. Es decir, estamos "ligando" (bind) el id a la función, lo que garantiza que updateInvoice ya reciba ese id cuando se ejecute.
+// El null que pasamos en .bind(null, ...) es el valor del contexto (this), pero en este caso no lo necesitamos, por lo que pasamos null
+// El primer parámetro de bind es el valor de this que se establece en la nueva función. En este caso, se pasa null, lo que significa que no se está especificando un valor para this, por lo que no se altera el contexto de la función.
+// El segundo parámetro, invoice.id, es el primer argumento que se fijará en la nueva función. Esto significa que cada vez que llames a updateInvoiceWithId, automáticamente se pasará invoice.id como primer argumento, sin necesidad de pasarlo manualmente.
+
+// Nota: Usar un campo de entrada oculto en su forma también funciona (por ejemplo. 
+{/* <input type="hidden" name="id" value={invoice.id} />).
+//  Sin embargo, los valores aparecerán como texto completo en la fuente HTML, que no es ideal para datos sensibles como ID. */}
