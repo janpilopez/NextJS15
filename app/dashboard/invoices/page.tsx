@@ -6,6 +6,18 @@ import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 
 import { fetchInvoicesPages } from '@/app/lib/data';
+import { Metadata } from 'next';
+
+// METADATA DEL COMPONENTE, SE SOBREPONE AL PADRE, NO RESPONSIVE
+// export const metadata: Metadata = {
+//   title: 'Invoices | Acme Dashboard',
+// };
+
+//RESPONSIVE
+export const metadata: Metadata = {
+  title: 'Invoices',
+};
+
 // #TODO: searchParams Page components accept a prop called searchParams, so you can pass the current URL params to the <Table> component.
 export default async function Page(props: {
   searchParams?: Promise<{

@@ -1,5 +1,22 @@
 import '@/app/ui/global.css';
+import { Metadata } from 'next';
 
+// #METADATA GENERAL version no responsive
+// export const metadata: Metadata = {
+  // title: 'Dashboard Example',
+  // description: 'The official Next.js Course Dashboard, built with App Router.',
+  // metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
+// };
+
+//RESPONSIVE
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Acme Dashboard',//El %sen la plantilla se sustituirá por el título de página específica.
+    default: 'Acme Dashboard',
+  },
+  description: 'The official Next.js Learn Dashboard built with App Router.',
+  metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
+};
 
 export default function RootLayout({
   children,
