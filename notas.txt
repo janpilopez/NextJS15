@@ -211,3 +211,16 @@ Esto le guiará a través de la instalación y configuración de ESLint para su 
 
 
 ##VALIDACIONES FORMS LADO SERVIDOR / SIDE-SERVER
+
+##NEXT AUTH
+//PERMITE MANEJAR SESIONES POR AUTENTICACION Y AUTORIZACION
+pnpm i next-auth@beta
+//generar clave secreta de la aplicacion
+openssl rand -base64 32
+//result: m7sQr60j0vB4J7bLeuHv0BxAyPr+6hvP/hStV4hNZIw=
+//Entonces, en tu .envfile, agregue la clave generada a la AUTH_SECRETvariable:
+
+
+##BCRIPT PROBLEMA CON NEXTJS
+Es una buena práctica la hashteda de contraseñas antes de almacenarlas en una base de datos. Hashing convierte una contraseña en una cadena de caracteres de longitud fija, que parece aleatoria, proporcionando una capa de seguridad incluso si los datos del usuario están expuestos.
+En tu seed.js Archivo, usted usó un paquete llamado bcryptpara la contraseña del usuario antes de almacenarla en la base de datos. Lo volverás a usar más tarde en este capítulo para comparar que la contraseña introducida por el usuario coincide con la de la base de datos. Sin embargo, tendrá que crear un archivo separado para el bcryptpaquetes. Esto es porque bcryptse basa en API de Node.js no disponible en Next.js Middleware.

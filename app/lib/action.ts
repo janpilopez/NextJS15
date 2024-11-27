@@ -8,6 +8,8 @@ import { createClient } from '@supabase/supabase-js';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
 
 
 
@@ -40,7 +42,9 @@ export type State = {
 // Es decir, el nuevo esquema CreateInvoice será el mismo que FormSchema pero sin esas dos propiedades.
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
-export async function createInvoice(prevState: State, formData: FormData) {
+export async function createInvoice(
+    prevState: State, 
+    formData: FormData) {
 
     //con este formato definido automaticamente preparamos las propiedades en su formato correcto para ser insertadas en la BD
     // const { customerId, amount, status } = CreateInvoice.parse({
@@ -114,7 +118,7 @@ export async function updateInvoice(
     const { customerId, amount, status } = validatedFields.data;
     // const amountInCents = amount * 100;
     const amountInCents = amount;
-    
+
     try {
         const { error } = await supabase
             .from('invoices')
@@ -146,4 +150,23 @@ export async function deleteInvoice(id: string) {
     revalidatePath('/dashboard/invoices');
     // .Ya que esta acción está siendo llamada en el /dashboard/invoicescamino,
     //  no necesitas llamar redirect. Llamando revalidatePathactivará una nueva solicitud de servidor y volverá a presentar la tabla.
+}
+
+export async function authenticate(
+    prevState: string | undefined,
+    formData: FormData,
+) {
+    try {
+        await signIn('credentials', formData);
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return 'Invalid credentials.';
+                default:
+                    return 'Something went wrong.';
+            }
+        }
+        throw error;
+    }
 }

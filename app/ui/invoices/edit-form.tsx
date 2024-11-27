@@ -154,7 +154,7 @@ export default function EditInvoiceForm({
 
 // ¿Qué hace .bind(null, invoice.id)?
 // updateInvoice: Es la función que realizará la acción en el servidor (probablemente actualizando la factura en la base de datos).
-// .bind(null, invoice.id): Esto es un truco de JavaScript. Lo que hace es crear una nueva versión de updateInvoice, pero con el primer argumento (en este caso, el id de la factura) ya predefinido. Es decir, estamos "ligando" (bind) el id a la función, lo que garantiza que updateInvoice ya reciba ese id cuando se ejecute.
+// #TODO: BIND .bind(null, invoice.id): Esto es un truco de JavaScript. Lo que hace es crear una nueva versión de updateInvoice, pero con el primer argumento (en este caso, el id de la factura) ya predefinido. Es decir, estamos "ligando" (bind) el id a la función, lo que garantiza que updateInvoice ya reciba ese id cuando se ejecute.
 // El null que pasamos en .bind(null, ...) es el valor del contexto (this), pero en este caso no lo necesitamos, por lo que pasamos null
 // El primer parámetro de bind es el valor de this que se establece en la nueva función. En este caso, se pasa null, lo que significa que no se está especificando un valor para this, por lo que no se altera el contexto de la función.
 // El segundo parámetro, invoice.id, es el primer argumento que se fijará en la nueva función. Esto significa que cada vez que llames a updateInvoiceWithId, automáticamente se pasará invoice.id como primer argumento, sin necesidad de pasarlo manualmente.
