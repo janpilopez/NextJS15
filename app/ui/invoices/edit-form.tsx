@@ -21,7 +21,7 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
-
+  //pruebas
                           // mismo contexto siemore, || se establece siempre pasar el id, ya que por reactjs no se puede pasar dorectamente explicaicon abajo
   const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
   const initialState: State = { message: null, errors: {} };
