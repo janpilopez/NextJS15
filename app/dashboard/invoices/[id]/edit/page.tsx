@@ -19,7 +19,7 @@ export default async function Page( props: { params: Promise<{ id: string }> }) 
     ])
 
 
-    
+
     if (!invoice) {
         notFound();
     }
@@ -27,7 +27,7 @@ export default async function Page( props: { params: Promise<{ id: string }> }) 
         <main>
             <Breadcrumbs
                 breadcrumbs={[
-                    { label: 'Invoices', href: '/dashboard/invoices' },
+                    { label: 'Invoices Facturacion', href: '/dashboard/invoices' },
                     {
                         label: 'Edit Invoice',
                         href: `/dashboard/invoices/${id}/edit`,
