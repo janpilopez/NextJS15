@@ -1,0 +1,124 @@
+<?php
+
+use app\models\SysAdmAreas;
+use app\models\SysAdmCargos;
+use app\models\SysAdmDepartamentos;
+use app\models\SysRrhhEmpleados;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\jui\DatePicker;
+use yii\grid\GridView;
+
+/* @var $this yii\web\View */
+/* @var $dataProvider yii\data\ActiveDataProvider */
+$this->render('../_alertFLOTADOR');
+$this->title = 'Certificado Salud';
+$this->params['breadcrumbs'][] = $this->title;
+?>
+<div class="sys-med-certificado-salud-index">
+
+    <h1><?= Html::encode($this->title) ?></h1>
+    <p>
+        <?= Html::a('Registrar Certificado', ['create'], ['class' => 'btn btn-success']) ?>
+    </p>
+    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+
+    <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $searchModel,
+        'columns' => [
+            ['class' => 'yii\grid\SerialColumn'],
+
+                [
+                'label'=>'Area',
+                'attribute'=>'area',
+                'filter'=>  ArrayHelper::map(SysAdmAreas::find()->where(['estado'=>'A'])->all(), 'id_sys_adm_area', 'area'),
+                'format' => 'raw',
+                'value'=> function($model){
+                
+                    $empleado     = SysRrhhEmpleados::find()->Where(['id_sys_rrhh_cedula'=> $model->id_sys_rrhh_cedula])->one();
+                    $cargo        = SysAdmCargos::find()->Where(['id_sys_adm_cargo'=> $empleado->id_sys_adm_cargo])->one();
+                    $departamento = SysAdmDepartamentos::find()->Where(['id_sys_adm_departamento'=> $cargo->id_sys_adm_departamento])->one();
+                    $area         = SysAdmAreas::find()->Where(['id_sys_adm_area'=> $departamento->id_sys_adm_area])->one();
+                    
+                    if($area):
+                        return $area->area;
+                    else:
+                        return "s/n";
+                    endif;
+                
+                },
+                'contentOptions'=>['style'=>'width: 20%;']
+                ],
+            'id_sys_rrhh_cedula',
+            [
+                'label'=>'Nombres',
+                'attribute'=>'nombres',
+                'value'=> function($model){
+                    $empleado        = SysRrhhEmpleados::find()->where(['id_sys_empresa'=> '001'])->andWhere(['id_sys_rrhh_cedula'=> $model->id_sys_rrhh_cedula])->one();
+                    return $empleado->nombres;
+                } ,
+             ],
+             [
+                 'label'=>'Entidad Emisora',
+                 'attribute'=>'entidad_emisora',
+                 'filter'=>  ['I'=> 'IESS', 'M'=>'MSP', 'P'=> 'PARTICULAR', 'O'=> 'OTROS'],
+                 'value'=> function($model){
+                 
+                     $entidad = 'OTROS';
+                     
+                     if($model->entidad_emisora == 'I'):
+                     
+                        $entidad = 'IESS';
+                     
+                     elseif ($model->entidad_emisora == 'M'):
+                     
+                        $entidad = 'MSP';
+                     
+                     elseif ($model->entidad_emisora == 'P'):
+                     
+                        $entidad = 'PARTICULAR';
+                     
+                     endif;
+                 
+                     return $entidad;
+                 
+                 } ,
+             ],
+             [
+                 'label'=>'Fecha',
+                 'attribute'=>'fecha_emision',
+                 'filter' => DatePicker::widget([
+                     
+                     'language' => 'es',
+                     'model' => $searchModel,
+                     'attribute' => 'fecha_emision',
+                     'dateFormat' => 'yyyy-MM-dd',
+                     'options'=>['class'=>'form-control input-sm']
+                 ]),
+                 
+                 'format' => 'raw',
+               
+             ],
+             [
+                 'label'=>'Vencimiento',
+                 'attribute'=>'fecha_vencimiento',
+                 'filter' => DatePicker::widget([
+                     
+                     'language' => 'es',
+                     'model' => $searchModel,
+                     'attribute' => 'fecha_emision',
+                     'dateFormat' => 'yyyy-MM-dd',
+                     'options'=>['class'=>'form-control input-sm']
+                 ]),
+                 
+                 'format' => 'raw',
+                 
+             ],
+             
+            ['class' => 'yii\grid\ActionColumn'],
+        ],
+    ]); ?>
+
+
+</div>
